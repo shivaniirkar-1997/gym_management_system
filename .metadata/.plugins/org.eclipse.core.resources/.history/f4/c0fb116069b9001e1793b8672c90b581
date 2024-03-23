@@ -1,0 +1,49 @@
+@charset "ISO-8859-1";
+
+
+
+img{
+	margin: 0;
+	padding: 0;
+	position: relative;
+	top: 2px;
+	opacity: 0.4;
+	z-index: -1;
+	height: 450px;
+	width: 100%; 
+	text-align: center;
+}
+span{
+	z-index: 1;
+}
+.form-control{
+	opacity: 0.5;
+}
+.form-control:hover{
+	opacity: 0.7;
+	background-color: #E4DEBE;
+}
+.form-control:focus{
+	opacity: 0.7;
+	background-color: #E6A4B4;
+	color: green;
+}
+
+
+.form-control,.form-label,.form-select{
+position:relative;
+left:300px;
+width: 50%;
+}
+.form-control,.form-select{
+	opacity: 0.5;
+}
+.form-select,.form-control:hover{
+	opacity: 0.7;
+	background-color: #E4DEBE;
+}
+form-select,.form-control:focus{
+	opacity: 0.7;
+	background-color: #E6A4B4;
+	color: green;
+}

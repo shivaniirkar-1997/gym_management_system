@@ -1,0 +1,6 @@
+127.0.0.1 - - [29/Jan/2024:17:40:40 +0530] "GET / HTTP/1.1" 404 751
+0:0:0:0:0:0:0:1 - - [29/Jan/2024:17:40:43 +0530] "GET /Gym_Management/ HTTP/1.1" 200 5111
+0:0:0:0:0:0:0:1 - - [29/Jan/2024:17:40:43 +0530] "GET /Gym_Management/JS/chart.js HTTP/1.1" 404 785
+0:0:0:0:0:0:0:1 - - [29/Jan/2024:17:41:03 +0530] "POST /Gym_Management/login HTTP/1.1" 200 8289
+0:0:0:0:0:0:0:1 - - [29/Jan/2024:17:41:07 +0530] "POST /Gym_Management/addTra HTTP/1.1" 200 9709
+0:0:0:0:0:0:0:1 - - [29/Jan/2024:17:41:21 +0530] "POST /Gym_Management/tReg HTTP/1.1" 500 1321

@@ -1,0 +1,689 @@
+package controller;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import model.Machines;
+import model.Member;
+import model.Trainer;
+@WebServlet(urlPatterns = {"/home","/login",
+		"/tList","/mList","/mmList",
+		"/addTra","/tReg","/tcheck","/tModify","/tup","/tdel","/tdelete",
+		"/addMem","/mReg",
+		"/addMach","/machReg","/mechModify","/mechUp","/mechDel","/mechDelete",
+		"/blist","/mbook","/mbooking","/mbookingDone"
+		,"/logout"})
+public class HomeController extends HttpServlet{
+	Connection con=null;
+	@Override
+	public void init() throws ServletException {
+		 try {
+			con=DriverManager.getConnection("jdbc:mysql://localhost:3306/gym","root","shiv@123");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		String url=req.getServletPath();
+		if (url.equals("/home")) {
+			req.setAttribute("msgReg", "Welcome To Home Page..");
+			  req.setAttribute("back", null);
+			  RequestDispatcher rd=req.getRequestDispatcher("adminHome.jsp");
+			  rd.include(req, resp);
+		}
+	}
+	
+	@Override
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		resp.setContentType("text/html");
+		PrintWriter out=resp.getWriter();
+		
+		String url=req.getServletPath();
+		HttpSession hs=req.getSession();
+		String uname=(String) req.getParameter("uname");
+		String pass=(String) req.getParameter("pass");
+		
+		PreparedStatement ps=null;
+		Statement st=null;
+		ResultSet rs=null;
+		
+		String uRole="";
+		boolean urole=false;
+		if (url.equals("/login")) {
+			String getRole="select urole from user_manage where uname=? AND pass=?";
+			try {
+				ps=con.prepareStatement(getRole);
+				ps.setString(1, uname);
+				ps.setString(2, pass);
+				rs=ps.executeQuery();
+				while (rs.next()) {
+					uRole=rs.getString(1);
+					urole=true;
+				}
+				
+				if (!urole) {
+					req.setAttribute("msg","u&p");
+					RequestDispatcher rd=req.getRequestDispatcher("index.jsp");
+					rd.include(req, resp);
+				}
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		if (uRole.equals("admin")) {
+			hs.setAttribute("op","{");
+			hs.setAttribute("uname", uname);
+			hs.setAttribute("cl","}");
+			hs.setAttribute("urole", uRole);
+			req.setAttribute("back",null);
+			
+			RequestDispatcher rd=req.getRequestDispatcher("adminHome.jsp");
+			rd.include(req, resp);
+		}else if (uRole.equals("user")) {
+			hs.setAttribute("op","{");
+			hs.setAttribute("uname", uname);
+			hs.setAttribute("cl","}");
+			hs.setAttribute("urole", uRole);
+			req.setAttribute("back",null);
+			RequestDispatcher rd=req.getRequestDispatcher("adminHome.jsp");
+			rd.include(req, resp);
+		}
+		
+		ArrayList<Trainer> tlist=new ArrayList();
+		ArrayList<Member> mlist=new ArrayList();
+		ArrayList<Machines> mmlist=new ArrayList();
+		ArrayList<Machines> blist=new ArrayList();
+		if (url.equals("/tList") && hs.getAttribute("urole").equals("admin")) {
+		
+			String getList="select id,tname,tcontact,tgender from trainer";
+			Trainer t;
+			 try {
+				ps=con.prepareStatement(getList);
+				rs=ps.executeQuery();
+				while (rs.next()) {
+					t=new Trainer(rs.getInt(1),rs.getString(2),rs.getString(3),rs.getString(4));
+					tlist.add(t);
+				}
+				req.setAttribute("tlist", tlist);
+				req.setAttribute("back", "show");
+				RequestDispatcher rd=req.getRequestDispatcher("adminHome.jsp");
+				rd.include(req, resp);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		} else if (url.equals("/mList") && hs.getAttribute("urole").equals("admin")) {
+			String getList="select * from member";
+			Member member;
+			 try {
+				ps=con.prepareStatement(getList);
+				rs=ps.executeQuery();
+				while (rs.next()) {
+					member=new Member(rs.getInt(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getDouble(6),rs.getDouble(7),rs.getString(8),rs.getString(9),rs.getString(10),rs.getString(11));
+					mlist.add(member);
+				}
+				req.setAttribute("mlist", mlist);
+				req.setAttribute("back", "show");
+				RequestDispatcher rd=req.getRequestDispatcher("adminHome.jsp");
+				rd.include(req, resp);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+
+		}else if (url.equals("/mmList") && hs.getAttribute("urole").equals("admin")) {
+			String getList="select * from machines";
+			Machines machines;
+			 try {
+				ps=con.prepareStatement(getList);
+				rs=ps.executeQuery();
+				while (rs.next()) {
+					machines=new Machines(rs.getInt(1),rs.getString(2),(rs.getInt(3)));
+					mmlist.add(machines);
+				}
+				req.setAttribute("mmlist", mmlist);
+				req.setAttribute("back", "show");
+				RequestDispatcher rd=req.getRequestDispatcher("adminHome.jsp");
+				rd.include(req, resp);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+
+		} else if (url.equals("/tList") &&  hs.getAttribute("urole").equals("user")) {
+
+		} else if(url.equals("/addTra") && hs.getAttribute("urole").equals("admin")) {
+			req.setAttribute("addTra", "addTra");
+			req.setAttribute("back", "show");
+			RequestDispatcher rd=req.getRequestDispatcher("adminHome.jsp");
+			rd.include(req, resp);
+		}else if (url.equals("/tReg") &&  hs.getAttribute("urole").equals("admin")) {
+			
+			String tins="insert into trainer(tname,tcontact,tgender) values(?,?,?)";
+			
+			try {
+				ps=con.prepareStatement(tins);
+				ps.setString(1,req.getParameter("tname"));
+				ps.setString(2,req.getParameter("tcon"));
+				ps.setString(3,req.getParameter("tgen"));
+				int n=ps.executeUpdate();
+				if (n==1) {
+					req.setAttribute("msgReg", ".Registration Successful.");
+					  req.setAttribute("back", null);
+					  RequestDispatcher rd=req.getRequestDispatcher("adminHome.jsp");
+					  rd.include(req, resp);
+				}else {
+					req.setAttribute("msgReg", ".Registration Not Successful.");
+					  req.setAttribute("back", null); 
+					  RequestDispatcher rd=req.getRequestDispatcher("adminHome.jsp");
+					  rd.include(req, resp);
+				}
+				
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} 
+			 
+		}else if(url.equals("/tModify") && hs.getAttribute("urole").equals("admin")) {
+
+			req.setAttribute("tmodify", "modify");
+			req.setAttribute("back", "show");
+			RequestDispatcher rd=req.getRequestDispatcher("adminHome.jsp");
+			rd.include(req, resp);
+		
+	}else if(url.equals("/tcheck") && hs.getAttribute("urole").equals("admin")) {
+	String tnnam =(String) req.getParameter("tnames");
+	String tcon = (String) req.getParameter("tcont");
+	String tnnamDB="";
+	String tconDB="";
+	int id=0;
+		String tcheck="select id,tname,tcontact from trainer where tname=? AND tcontact=?";
+	boolean tch=false;
+		 try {
+			ps=con.prepareStatement(tcheck);
+			ps.setString(1,tnnam);
+			ps.setString(2,tcon);
+			rs=ps.executeQuery();
+			while (rs.next()) {
+				id=rs.getInt(1);
+				tnnamDB=rs.getString(2);
+				tconDB=rs.getString(3);
+				
+			}
+			if (tnnam.equals(tnnamDB) && tcon.equals(tconDB)) {
+				tch=true;
+				hs.setAttribute("tid",id);
+				req.setAttribute("tFound", "found");
+				req.setAttribute("back", "show");
+				req.setAttribute("msgReg", "Data Available You Can Update New Data..");
+				RequestDispatcher rd=req.getRequestDispatcher("adminHome.jsp");
+				rd.include(req, resp);
+			} if(!tch) {
+				req.setAttribute("tFound",null);
+				req.setAttribute("back", null);
+				req.setAttribute("msgReg", "Trainer Data Not Found.");
+				RequestDispatcher rd=req.getRequestDispatcher("adminHome.jsp");
+				rd.include(req, resp);
+			}
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	
+}else if(url.equals("/tup") && hs.getAttribute("urole").equals("admin")) {
+	String tnnam =(String) req.getParameter("tname");
+	String tcon = (String) req.getParameter("tcon");
+	String tgen = (String) req.getParameter("tgen");
+	hs=req.getSession(false);
+	int id=Integer.parseInt(String.valueOf(hs.getAttribute("tid")));
+		String tcheck="UPDATE trainer SET tname=?,tcontact=?,tgender=? WHERE id=?";
+	boolean tch=false;
+		 try {
+			ps=con.prepareStatement(tcheck);
+			ps.setString(1,tnnam);
+			ps.setString(2,tcon);
+			ps.setString(3,tgen);
+			ps.setInt(4, id);
+			int n=ps.executeUpdate();
+			
+			if (n==1) {
+			
+				req.setAttribute("back", null);
+				req.setAttribute("msgReg", "Trainer data updated successfully you can check in trainer list..");
+				RequestDispatcher rd=req.getRequestDispatcher("adminHome.jsp");
+				rd.include(req, resp);
+			} else {
+		
+				req.setAttribute("back", null);
+				req.setAttribute("msgReg", "Oops, Data Not Updated.");
+				RequestDispatcher rd=req.getRequestDispatcher("adminHome.jsp");
+				rd.include(req, resp);
+			}
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	
+	}else if (url.equals("/tdel") &&  hs.getAttribute("urole").equals("admin")) {
+		req.setAttribute("tdel", "tdel");
+		req.setAttribute("back", "show");
+		RequestDispatcher rd=req.getRequestDispatcher("adminHome.jsp");
+		rd.include(req, resp);
+		 
+	}else if (url.equals("/tdelete") &&  hs.getAttribute("urole").equals("admin")) {
+		int id=Integer.parseInt(String.valueOf(req.getParameter("tidd")));
+			String tdell="DELETE FROM trainer WHERE id=?";
+			 try {
+				ps=con.prepareStatement(tdell);
+				ps.setInt(1, id);
+				int n=ps.executeUpdate();
+				
+				if (n==1) {
+					req.setAttribute("back", null);
+					req.setAttribute("msgReg", "Trainer data Delete successfully you can check in trainer list..");
+					RequestDispatcher rd=req.getRequestDispatcher("adminHome.jsp");
+					rd.include(req, resp);
+				} if(n!=1) {
+					req.setAttribute("tdel", "tdel");
+					req.setAttribute("back", "show");
+					req.setAttribute("msgReg", "Oops, Data Not Found Try Again.");
+					RequestDispatcher rd=req.getRequestDispatcher("adminHome.jsp");
+					rd.include(req, resp);
+				}
+				
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	}else if (url.equals("/addMem") &&  hs.getAttribute("urole").equals("admin")) {
+			req.setAttribute("addMem", "addTra");
+			req.setAttribute("back", "show");
+			RequestDispatcher rd=req.getRequestDispatcher("adminHome.jsp");
+			rd.include(req, resp);
+			 
+		}else if (url.equals("/mReg") &&  hs.getAttribute("urole").equals("admin")) {
+			String tname="";
+			String	membership="";
+					 tname=req.getParameter("tname");
+				membership=req.getParameter("membership");
+		if(tname.length()==0 && membership.length()==0){
+			 tname="NA";
+			 membership="NA";
+		}
+			/*double w=Double.parseDouble(String.valueOf(req.getParameter("w")));
+			double h=Double.parseDouble(String.valueOf(req.getParameter("h")));
+			*/String mins="insert into member(mfistname,mlastname,mgender,mcontact,mweight,mheight,mprogram,mtrainer,msession,membership) values(?,?,?,?,?,?,?,?,?,?)";
+			
+			try {
+				ps=con.prepareStatement(mins);
+				ps.setString(1,req.getParameter("fname"));
+				ps.setString(2,req.getParameter("lname"));
+				ps.setString(3,req.getParameter("mgen"));
+				ps.setString(4,req.getParameter("con"));
+				ps.setDouble(5,Double.parseDouble(String.valueOf(req.getParameter("w"))));
+				ps.setDouble(6,Double.parseDouble(String.valueOf(req.getParameter("h"))));
+				ps.setString(7,req.getParameter("program"));
+				ps.setString(8,tname);
+				ps.setString(9,req.getParameter("session"));
+				ps.setString(10,membership);
+		
+				int n=ps.executeUpdate();
+				if (n==1) {
+					req.setAttribute("msgReg", ".Registration Successful.");
+					  req.setAttribute("back", null);
+					  RequestDispatcher rd=req.getRequestDispatcher("adminHome.jsp");
+					  rd.include(req, resp);
+				}else {
+					req.setAttribute("msgReg", ".Registration Not Successful.");
+					  req.setAttribute("back", null); 
+					  RequestDispatcher rd=req.getRequestDispatcher("adminHome.jsp");
+					  rd.include(req, resp);
+				}
+				
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} 
+			 
+		}else if (url.equals("/addMach") &&  hs.getAttribute("urole").equals("admin")) {
+			req.setAttribute("addMach", "addMachine");
+			req.setAttribute("back", "show");
+			RequestDispatcher rd=req.getRequestDispatcher("adminHome.jsp");
+			rd.include(req, resp);
+			 
+		}else if (url.equals("/machReg") &&  hs.getAttribute("urole").equals("admin")) {
+			
+		String machName=req.getParameter("machname");
+				String checkName="SELECT mname FROM machines WHERE mname=?";
+				
+			boolean da=false;
+			try {
+				ps=con.prepareStatement(checkName);
+				ps.setString(1,machName);
+				rs=ps.executeQuery();
+				while (rs.next()) {
+					if (machName.equals(rs.getString(1))) {
+						req.setAttribute("msgReg", ".Ooops Data is Availables.");
+						req.setAttribute("addMach", "addMachine");
+						req.setAttribute("back", "show");
+						RequestDispatcher rd=req.getRequestDispatcher("adminHome.jsp");
+						rd.include(req, resp);
+						da=true;
+					}
+				}
+				if (!da) {
+				String mmins="insert into machines(mname,book) values(?,?)";
+				ps=con.prepareStatement(mmins);
+				ps.setString(1,machName);
+				ps.setInt(2, 4);
+				int n=ps.executeUpdate();
+				if (n==1) {
+					req.setAttribute("msgReg", ".Machine Data Added Successful You Can Check in List.");
+					  req.setAttribute("back", null);
+					  RequestDispatcher rd=req.getRequestDispatcher("adminHome.jsp");
+					  rd.include(req, resp);
+				}else {
+					req.setAttribute("msgReg", ".Ooops Data Not Added Please Try Again.");
+					  req.setAttribute("back", null); 
+					  RequestDispatcher rd=req.getRequestDispatcher("adminHome.jsp");
+					  rd.include(req, resp);
+				}
+				}
+				
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} 
+			
+			 
+		}else if (url.equals("/mechModify") &&  hs.getAttribute("urole").equals("admin")) {
+			req.setAttribute("mechModify", "mechModify");
+			req.setAttribute("back", "show");
+			RequestDispatcher rd=req.getRequestDispatcher("adminHome.jsp");
+			rd.include(req, resp);
+			 
+		}else if (url.equals("/mechUp") &&  hs.getAttribute("urole").equals("admin")) {
+			
+		String machName=req.getParameter("machname");
+				String checkName="SELECT id,mname FROM machines WHERE mname=?";
+				
+			boolean da=false;
+			try {
+				ps=con.prepareStatement(checkName);
+				ps.setString(1,machName);
+				rs=ps.executeQuery();
+				while (rs.next()) {
+					hs.setAttribute("mechId",rs.getInt(1));
+					if (machName.equals(rs.getString(2))) {
+						req.setAttribute("msgReg", "Data is Availables You Can Update.");
+						req.setAttribute("mechModify", "mechModify");
+						req.setAttribute("back", "show");
+						RequestDispatcher rd=req.getRequestDispatcher("adminHome.jsp");
+						rd.include(req, resp);
+						da=true;
+					}
+				}
+				if (!da) {
+					hs=req.getSession(false);
+					int mechid=Integer.parseInt(String.valueOf(hs.getAttribute("mechId")));
+				String mmup="UPDATE machines SET mname=? WHERE id=?";
+				ps=con.prepareStatement(mmup);
+				ps.setString(1,machName);
+				ps.setInt(2,mechid);
+				int n=ps.executeUpdate();
+				if (n==1) {
+					req.setAttribute("msgReg", ".Machine Data Updated Successful You Can Check in List.");
+					  req.setAttribute("back", null);
+					  RequestDispatcher rd=req.getRequestDispatcher("adminHome.jsp");
+					  rd.include(req, resp);
+				}else {
+					req.setAttribute("msgReg", ".Ooops Data Not Available Please Try Again.");
+					req.setAttribute("mechModify", "mechModify");
+					req.setAttribute("back", "show");
+					  RequestDispatcher rd=req.getRequestDispatcher("adminHome.jsp");
+					  rd.include(req, resp);
+				}
+				}
+				
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} 
+			
+			 
+		}else if (url.equals("/mechDel") &&  hs.getAttribute("urole").equals("admin")) {
+			req.setAttribute("mechDel", "mechDel");
+			req.setAttribute("back", "show");
+			RequestDispatcher rd=req.getRequestDispatcher("adminHome.jsp");
+			rd.include(req, resp);
+			 
+		}else if (url.equals("/mechDelete") &&  hs.getAttribute("urole").equals("admin")) {
+		int mid=Integer.parseInt(String.valueOf(req.getParameter("machId")));
+			String mdell="DELETE FROM machines WHERE id=?";
+			 try {
+				ps=con.prepareStatement(mdell);
+				ps.setInt(1, mid);
+				int n=ps.executeUpdate();
+				if (n==1) {
+					req.setAttribute("back", null);
+					req.setAttribute("msgReg", "Machine data Delete successfully you can check in Machine list..");
+					RequestDispatcher rd=req.getRequestDispatcher("adminHome.jsp");
+					rd.include(req, resp);
+				} if(n!=1) {
+					req.setAttribute("mechDel", "mechDel");
+					req.setAttribute("back", "show");
+					req.setAttribute("msgReg", "Oops, Invalid ID, Data Not Found Try Again.");
+					RequestDispatcher rd=req.getRequestDispatcher("adminHome.jsp");
+					rd.include(req, resp);
+				}
+				
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	}else if (url.equals("/blist") &&  hs.getAttribute("urole").equals("admin")) {
+		String getbList="select * from machine_booking";
+		Machines machines;
+		 try {
+			ps=con.prepareStatement(getbList);
+			rs=ps.executeQuery();
+			while (rs.next()) {
+				machines=new Machines(rs.getInt(1),rs.getString(2),rs.getString(3),rs.getString(4));
+				blist.add(machines);
+			}
+			req.setAttribute("blist", blist);
+			req.setAttribute("back", "show");
+			RequestDispatcher rd=req.getRequestDispatcher("adminHome.jsp");
+			rd.include(req, resp);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+	} else if(url.equals("/mbook") && hs.getAttribute("urole").equals("admin")) {
+		req.setAttribute("mbook", "mbook");
+		req.setAttribute("back", "show");
+		RequestDispatcher rd=req.getRequestDispatcher("adminHome.jsp");
+		rd.include(req, resp);
+	}else if(url.equals("/mbooking") && hs.getAttribute("urole").equals("admin")) {
+		int mid=Integer.parseInt(String.valueOf(req.getParameter("mid")));
+		String checkName="SELECT id,mname,book FROM machines WHERE id=?";
+		
+	boolean da=false;
+	try {
+		ps=con.prepareStatement(checkName);
+		ps.setInt(1, mid);
+		rs=ps.executeQuery();
+		while (rs.next()) {
+			if (mid==rs.getInt(1)) {
+				if (rs.getInt(3)>0 && rs.getInt(3)<=4) {
+					hs.setAttribute("machName",rs.getString(2));
+					hs.setAttribute("mechBook", rs.getInt(3));
+					req.setAttribute("msgReg", " Data is Availables.");
+					req.setAttribute("mbookingForm", "mbookingForm");
+					req.setAttribute("back", "show");
+					RequestDispatcher rd=req.getRequestDispatcher("adminHome.jsp");
+					rd.include(req, resp);
+					da=true;
+					break;
+				}else {
+					req.setAttribute("msgReg", ".Ooops Machine Booking`s Not Available, Please Try Again.");
+					req.setAttribute("mbook", "mbook");
+					req.setAttribute("back", "show"); 
+					  RequestDispatcher rd=req.getRequestDispatcher("adminHome.jsp");
+					  rd.include(req, resp);
+					  da=true;
+				}
+			}
+		}
+		if (!da) {
+		
+			req.setAttribute("msgReg", ".Ooops Machine Data Not Found Please Try Again.");
+			req.setAttribute("mbook", "mbook");
+			req.setAttribute("back", "show"); 
+			  RequestDispatcher rd=req.getRequestDispatcher("adminHome.jsp");
+			  rd.include(req, resp);
+		
+		}
+		
+	} catch (SQLException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} 
+	
+	 
+		
+	}else if(url.equals("/mbookingDone") && hs.getAttribute("urole").equals("admin")) {
+		
+		hs=req.getSession(false);
+		String session=req.getParameter("session");
+		String mname=(String)hs.getAttribute("machName");
+		String name=(String)hs.getAttribute("uname");
+		int avbook=Integer.parseInt(String.valueOf(hs.getAttribute("mechBook")));
+	
+		String checkuser="SELECT membername,session from machine_booking WHERE membername=?";
+		
+		
+	ArrayList<Machines> sessionDB=new ArrayList<Machines>();
+		Machines mm;
+		try {
+		
+			ps=con.prepareStatement(checkuser);
+			ps.setString(1, name);
+			rs=ps.executeQuery();
+			while (rs.next()) {
+				
+				mm=new Machines(rs.getString(1),rs.getString(2));
+						sessionDB.add(mm);
+					}
+			
+			if ( sessionDB.size()!=0) {
+				
+			for (Machines mach : sessionDB) 
+			{
+				System.out.println("Enter in for Loop");
+			
+				if (name.equals(mach.getMemname())&& session.equals(mach.getBsession())) {
+					req.setAttribute("msgReg", "You are allready Booking`s.");
+					req.setAttribute("mbookingForm", "mbookingForm");
+					req.setAttribute("back", "show");
+					RequestDispatcher rd=req.getRequestDispatcher("adminHome.jsp");
+					rd.include(req, resp);
+				}
+			}
+			}else if (sessionDB.size()==0||sessionDB.size()!=0) {
+					
+					String book="INSERT INTO machine_booking(machinename,membername,session) VALUES(?,?,?)";
+					try {
+						ps=con.prepareStatement(book);
+						
+						ps.setString(1, mname);
+						ps.setString(2, name);
+						ps.setString(3, session);
+						int nn=ps.executeUpdate();
+						
+						if (nn==1) {
+							String upmachines="UPDATE machines SET book=? WHERE mname=?";
+							
+							try {
+							ps=con.prepareStatement(upmachines);
+							ps.setInt(1, (avbook-1));
+							ps.setString(2, mname);
+							ps.executeUpdate();
+							req.setAttribute("msgReg", "Booking Successful, You Can Check In Booking Details.");
+							req.setAttribute("back",null);
+							RequestDispatcher rd=req.getRequestDispatcher("adminHome.jsp");
+							rd.include(req, resp);
+							
+							} catch (SQLException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						
+					}
+						} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+						
+						
+					} else {
+						req.setAttribute("msgReg", "Booking Not Done Try Again.");
+						req.setAttribute("back",null);
+						RequestDispatcher rd=req.getRequestDispatcher("adminHome.jsp");
+						rd.include(req, resp);
+					}
+		}
+			
+		
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}else if(url.equals("/logout") && hs.getAttribute("urole").equals("admin")) {
+			 hs=req.getSession(false);
+			hs.invalidate();
+			req.setAttribute("msgReg", ".Logout Successful.");
+			RequestDispatcher rd=req.getRequestDispatcher("index.jsp");
+			rd.include(req, resp);
+		}else if(url.equals("/logout") && hs.getAttribute("urole").equals("user")) {
+			 hs=req.getSession(false);
+			hs.invalidate();
+			req.setAttribute("msgReg", ".Logout Successful.");
+			RequestDispatcher rd=req.getRequestDispatcher("index.jsp");
+			rd.include(req, resp);
+		}  
+	}
+		
+}
+
+
+

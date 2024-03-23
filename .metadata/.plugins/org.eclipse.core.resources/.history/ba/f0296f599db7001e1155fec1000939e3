@@ -1,0 +1,134 @@
+<%@page import="model.Trainer"%>
+<%@page import="java.util.ArrayList"%>
+<%@page import="java.util.Iterator"%>
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Gym Management</title>
+ <link rel="icon" href="img/gm.jpg" type="image/jpg" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+<script type="text/javascript" src="JS/chart.js"></script>
+</head>
+<body class="text-start">
+<!-- navbar -->
+<div>
+<nav class="navbar navbar-expand-lg  navbar-dark bg-secondary postion-static">
+  <div class="container-fluid">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <a class="navbar-brand" href=""><b><i>Gym Management</i></b></a>
+    <div class="collapse navbar-collapse text-end" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="#">Home</a>
+        </li>
+     
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Trainer Details
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <li><form class="d-flex dropdown-item" action="tList" method="post">
+        <button>Trainer List</button>
+      </form>
+      </li>
+             <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#">Add New Trainer</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#">Modify Trainer Details</a></li>
+             <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#">Delete Trainer Details</a></li>
+          </ul>
+        </li>
+        
+         <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Member Details
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <li><a class="dropdown-item" href="#">Member List</a></li>
+             <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#">Add New Member</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#">Modify Member Details</a></li>
+             <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#">Delete Member Details</a></li>
+          </ul>
+        </li>
+        
+         <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Machine Details
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <li><a class="dropdown-item" href="#">Machine List</a></li>
+             <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#">Available Machine</a></li>
+          </ul>
+        </li> 
+      </ul>
+    </div>
+    <div class="d-flex mx-1">
+    <span style="color: red;">${msg}</span>
+    </div>
+  </div>
+</nav>
+</div>
+	<div class="d-flex text-center" style="height: 100%;width: 100%">
+	<table border="1" class="sortable">
+	<%
+	
+	try{
+		ArrayList<Trainer> tlist=(ArrayList<Trainer>)request.getAttribute("tlist");
+		Object dis[]=tlist.toArray();
+out.print(dis[3]);
+		if(tlist!=null)
+		{
+	%>
+			<tr>
+				<th>ID</th>
+				<th>Trainer Name</th>
+				<th>Trainer Contact</th>
+				<th>Gender</th>
+			</tr>
+	<%
+	int id=0;
+	int no=0;
+Iterator i=tlist.iterator();
+		while(i.hasNext())
+		{
+			id++
+		%>
+		<tr>
+			<td><%=id%></td>
+			<td><%=dis[no]%></td>
+			<%no++%>
+			<td><%=dis[no]%></td>
+			<%no++%>
+			<td><%=dis[no]%></td>
+			<%no++%>
+		</tr>
+
+		<%
+
+		}
+		}
+		
+		}catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+%>
+	
+	</table>
+
+	</div>
+</body>
+</html>
+<%@include file="footer.jsp" %>

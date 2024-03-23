@@ -1,0 +1,42 @@
+@charset "ISO-8859-1";
+
+body,input {
+	background-color: black;
+	color: white;
+}
+ #img{
+	border: 1px solid;
+	height:40px;
+	width:60px;
+	border-radius: 100px 0px 100px 0px;
+	}
+.td{
+	position: relative;
+	top: -25px;
+	height: 40px;
+	width:60px; 
+	}
+.input{
+	height: 30px;
+	width: 250px;
+	border-radius: 1px 10px 10px 1px;
+	background-color: black;
+	color: white;
+}
+#trans{
+	height: 100px;
+	width: 250px;
+}
+button {
+	width: 90px;
+	height: 35px;
+	border-radius: 40px 40px 80px 80px;
+	background-color: white;
+}
+button:hover {
+	width: 87px;
+	height: 33px;
+	border-radius: 37px 37px 77px 77px;
+	background-color: black;
+	color: white;
+}

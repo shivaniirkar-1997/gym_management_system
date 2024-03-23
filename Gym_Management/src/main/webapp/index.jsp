@@ -1,0 +1,68 @@
+
+<%@page import="java.sql.*"%>
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+    <%@include file="navbar.jsp" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+
+<link href="css/index.css" rel="stylesheet">
+<script type="text/javascript" src="js/index.js"></script>
+<title>Gym Management</title>
+<link rel="icon" href="img/gm.jpg" type="image/jpg" />
+</head>
+<body>
+<br>
+
+<table width="100%" border="0">
+<tr><td style="width: 50%;position:relative; top: 20px;left: 20px;">
+<div align="center">
+	<iframe width="900" height="400" src="https://www.youtube.com/embed/eAlNvWgTDZQ" title="Best Hip hop &amp; Trap Workout Music Mix 2021 Neffex &amp; Magic Music Bodybuilding Music" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+</div></td>
+
+<td align="center" style="width: 50%">
+                
+           <form name="" action="login" method="post" onsubmit="return validate()">
+			<table border="0" width="50%" align="center">
+						<tr>
+						<td colspan="2" align="center">
+						</td>
+						</tr>
+			
+						<tr class="td">
+						 <td colspan="2" align="center">
+ 		                     <img id="trans" src="img/gmmm.jpg" style="height: 100px;width: 150px"></img>
+                        </td>           
+                      </tr>
+                      
+						<tr class="td"><td colspan="2" align="center">
+			<%
+						try{
+						String msg=(String)request.getAttribute("msg");
+						if(msg==null){}
+						else if(msg.equals("u&p"))
+						{		
+							out.print("<font color='red' size='3'>Ooop`s! Enter correct username and password</font>");
+						}		 
+					}catch(Exception a)
+							{
+						out.print(a);
+							}			
+				%>					
+						</td></tr>
+						<tr class="td"><td align="center"><input class="input" autocomplete="off"  placeholder="User Name" type="text" name="uname" id="uname"></td></tr>
+						<tr class="td"><td align="center"><input class="input" autocomplete="off" placeholder="Password" type="password" name="pass" id="pass"></td></tr>
+						<tr></tr>
+						<tr class="td"><td colspan="2"  align="center"><button onchange="validate()">Login</button></td></tr>					
+						</table>            					
+            				</form>	
+            		</td>
+                     
+                    </tr>
+                    </table>
+<br><br>
+</body>
+</html>
+<%@include file="footer.jsp" %>
